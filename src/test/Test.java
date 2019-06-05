@@ -1,10 +1,7 @@
 /*
-Tick Tack Toe 
-changes:
+Jeremy A. C. Phy
+Tic Tac Toe 
 
-
-TODO:
-create check for win method
  */
 package test;
 
@@ -15,7 +12,7 @@ import java.util.*;
  *
  * @author win8
  */
-public class Test {
+public class TicTacToe {
 
     /**
      * @param args the command line arguments
@@ -23,13 +20,15 @@ public class Test {
     public static void main(String[] args) {
         TTT game = new TTT();
         game.clear();
-        game.play();/*
+        game.playMatch();
+        /*
         game.isBoardFull();
         game.isSpaceEmpty(0, 0);
-        game.place(0, 0, 'X');
+        game.place(0, 0, 'X'); 
         game.printBoard();
         game.isSpaceEmpty(0, 0);*/
     }
+
 }
 
 class TTT {
@@ -43,11 +42,11 @@ class TTT {
 
     public TTT() {
         board = new char[3][3];
-        initializeBoard();
-        p1turn = true;
+        initializeMatch();
+        p1turn = false;
     }
 
-    public void play() {
+    public void playMatch() {
         clear();
         System.out.println("====Let's Play Tick Tack Toe!====");
         System.out.println("Press Enter to Continue");
@@ -61,16 +60,63 @@ class TTT {
         clear();
         printBoard();
         do {
-            turn();
-            printBoard();
             p1turn = !p1turn;
-
+            clear();
+            printBoard();
+            turn();            
         } while (!isBoardFull() && !checkForWin());
-        System.out.println("board full.");
-        printBoard();
+
+        System.out.println("Game Over!");
+        if (checkForWin()) {
+            if (p1turn) {
+                System.out.println("Player 1 (" + p1 + ") wins!");
+            } else {
+                System.out.println("Player 2 (" + p2 + ") wins!");
+            }
+            printBoard();
+        } else if (isBoardFull()) {
+            System.out.println("The board is full, Nobody Wins!");
+        }
     }
 
-    public void initializeBoard() {
+    public void place(int r, int c) {
+        char piece;
+        if (this.isSpaceEmpty(r, c)) {
+            if (p1turn) {
+                piece = p1;
+            } else {
+                piece = p2;
+            }
+            board[r][c] = piece;
+        }
+    }
+
+    public void turn() {
+        int p;
+        boolean valid = false;
+        while (!valid) {
+            if (p1turn) {
+                current = p1;
+                p = 1;
+            } else {
+                current = p2;
+                p = 2;
+            }
+            System.out.println("Player " + p + "'s turn, place your marker (" + current + ")");
+            System.out.print("Row: ");
+            int r = sc.nextInt() - 1;
+            System.out.print("Column: ");
+            int c = sc.nextInt() - 1;
+            if (r < 3 && c < 3 && this.isSpaceEmpty(r, c)) {
+                valid = true;
+                place(r, c);
+            } else {
+                System.out.println("Coordinates Invalid, Please enter proper values");
+            }
+        }
+    }
+
+    public void initializeMatch() {
         for (int r = 0; r < 3; r++) {
             for (int c = 0; c < 3; c++) {
                 board[r][c] = '-';
@@ -106,17 +152,63 @@ class TTT {
     }
 
     public boolean checkForWin() {
-        boolean win = false;
+        boolean win = (HorizCheck() || VertCheck() || DiagCheck());
+        return win;
+    }
+
+    public boolean HorizCheck() {
         int count = 0;
-        int r = 1;
-        for (int c = 0; c < 3; c++) {
-            if (board [r][c] == current)
-                count++;
-            if (count == 3){
+        for (int r = 0; r < 3; r++) {
+            count = 0;
+            for (int c = 0; c < 3; c++) {
+                if (board[r][c] == current) {
+                    count++;
+                }
+            }
+            if (count == 3) {
                 return true;
             }
         }
-        
+        return false;
+    }
+
+    public boolean VertCheck() {
+        int count = 0;
+        for (int c = 0; c < 3; c++) {
+            count = 0;
+            for (int r = 0; r < 3; r++) {
+                if (board[r][c] == current) {
+                    count++;
+                }
+            }
+            if (count == 3) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean DiagCheck() {
+        int count = 0;
+        for (int x = 0; x < 3; x++) {
+            if (board[x][x] == current) {
+                count++;
+            }
+        }
+        if (count == 3) {
+            return true;
+        }
+        count = 0;
+        int r = 2;
+        for (int c = 0; c < 3; c++) {
+            if (board[r][c] == current) {
+                count++;
+            }
+            r--;
+        }
+        if (count == 3) {
+            return true;
+        }
         return false;
     }
 
@@ -127,44 +219,6 @@ class TTT {
         }
         //System.out.println("Space (" + r + "," + c + ") is not empty");
         return false;
-    }
-
-    public void place(int r, int c) {
-        char piece;
-        if (this.isSpaceEmpty(r, c)) {
-            if (p1turn) {
-                piece = p1;
-            } else {
-                piece = p2;
-            }
-            board[r][c] = piece;
-        }
-    }
-
-    public void turn() {
-        int p;
-        if (p1turn) {
-            p = 1;
-            current = p1;
-        } else {
-            p = 2;
-            current = p2;
-        }
-        boolean valid = false;
-        while (!valid) {
-            System.out.println("Player " + p + "'s turn, place your marker (" + current + ")");
-            System.out.print("Row: ");
-            int r = sc.nextInt() - 1;
-            System.out.print("Column: ");
-            int c = sc.nextInt() - 1;
-            if (r < 3 && c < 3 && this.isSpaceEmpty(r, c)) {
-                valid = true;
-                place(r, c);
-                clear();
-            } else {
-                System.out.println("Coordinates Invalid, Please enter proper values");
-            }
-        }
     }
 
     public void setPlayer(int player, char c) {
@@ -181,4 +235,3 @@ class TTT {
         }
     }
 }
-
